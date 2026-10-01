@@ -1,0 +1,7 @@
+id=NotoColorEmojiCurrent
+name=Noto Color Emoji (Current)
+version=v2.057-20260911
+versionCode=20260911
+author=ethanm6
+description=Systemlessly replaces the stock emoji font with the current build straight from Google's googlefonts/noto-emoji repo — same art style Pixel ships, just not frozen at whatever Unicode version your ROM shipped with. A CI job checks upstream daily and cuts a new release automatically when Google updates it.
+updateJson=https://raw.githubusercontent.com/ethanm6/noto-emoji-magisk/main/update.json

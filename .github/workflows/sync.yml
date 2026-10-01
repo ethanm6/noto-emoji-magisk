@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Sync with upstream noto-emoji
+
+on:
+  schedule:
+    # 09:00 UTC daily. Cheap to run — the check itself is just a 10MB
+    # fetch + a name-table read, so daily is plenty responsive without
+    # being wasteful.
+    - cron: '0 9 * * *'
+  workflow_dispatch: {}  # manual "Run workflow" button, for testing / forcing a check
+
+permissions:
+  contents: write  # needed to commit the updated font back and create releases
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install fonttools
+
+      - name: Check upstream and rebuild if changed
+        id: sync
+        run: python3 scripts/sync.py
+
+      - name: Build flashable zip
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          zip -r "${{ steps.sync.outputs.zip_name }}" module.prop system/
+
+      - name: Commit updated module files
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add system/fonts/NotoColorEmoji.ttf module.prop update.json CHANGELOG.md .upstream_version
+          git commit -m "Sync to upstream noto-emoji ${{ steps.sync.outputs.tag }}"
+          git push
+
+      - name: Tag release
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git tag "${{ steps.sync.outputs.tag }}"
+          git push origin "${{ steps.sync.outputs.tag }}"
+
+      - name: Publish release
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Pull just this version's changelog section as the release notes
+          awk '/^## /{n++} n==1' CHANGELOG.md > /tmp/release-notes.md
+          gh release create "${{ steps.sync.outputs.tag }}" \
+            "${{ steps.sync.outputs.zip_name }}" \
+            --title "${{ steps.sync.outputs.tag }}" \
+            --notes-file /tmp/release-notes.md

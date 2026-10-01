@@ -1,0 +1,17 @@
+This project combines components under different licenses. Each component
+keeps its own license; the full texts are in the files referenced below.
+
+1. Font — SIL Open Font License 1.1 (see LICENSE-OFL.txt)
+   - system/fonts/NotoColorEmoji.ttf
+     Unmodified, pulled directly from
+     https://github.com/googlefonts/noto-emoji (2D/fonts/NotoColorEmoji.ttf
+     on the main branch) by the sync automation below.
+     Copyright The Noto Project Authors.
+
+2. Original code — GNU General Public License v3.0 or later
+   (see LICENSE-GPL3.txt)
+   - scripts/sync.py
+   - .github/workflows/sync.yml
+   Copyright 2026 ethanm6.
+
+This project is not affiliated with or endorsed by Google.

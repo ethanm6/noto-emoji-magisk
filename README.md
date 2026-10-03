@@ -28,3 +28,9 @@ project, unmodified, under the SIL Open Font License 1.1 — see the
 GPL-3.0-or-later.
 
 This project is not affiliated with or endorsed by Google.
+
+## Support
+
+If you find this project useful, you can support development:
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/ethanm6)

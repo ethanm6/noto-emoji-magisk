@@ -57,9 +57,8 @@ def fetch_font(tmp_path: Path) -> None:
 
 
 def read_version_string(font_path: Path) -> str:
-    font = TTFont(str(font_path), lazy=True)
-    name = font["name"]
-    rec = name.getDebugName(5)  # nameID 5 = version string
+    with TTFont(str(font_path), lazy=True) as font:
+        rec = font["name"].getDebugName(5)  # nameID 5 = version string
     if not rec:
         raise RuntimeError("Font has no nameID 5 (version string) — upstream format may have changed")
     return rec
@@ -76,20 +75,27 @@ def write_github_output(key: str, value: str) -> None:
 
 def main() -> int:
     tmp_font = REPO_ROOT / "_upstream_fetch.ttf"
+    try:
+        return _check_and_update(tmp_font)
+    finally:
+        # Best-effort cleanup. On success the fetch was moved into place by
+        # .replace(); on any failure this removes the partial download.
+        tmp_font.unlink(missing_ok=True)
+
+
+def _check_and_update(tmp_font: Path) -> int:
     fetch_font(tmp_font)
 
     new_version_string = read_version_string(tmp_font)
     old_version_string = VERSION_FILE.read_text().strip() if VERSION_FILE.exists() else ""
 
     if new_version_string == old_version_string:
-        tmp_font.unlink(missing_ok=True)
         print(f"No change. Still at: {new_version_string}")
         write_github_output("changed", "false")
         return 0
 
     m = VERSION_RE.search(new_version_string)
     if not m:
-        tmp_font.unlink(missing_ok=True)
         raise RuntimeError(f"Couldn't parse version string: {new_version_string!r}")
 
     ver, build_date, sha = m["ver"], m["date"], m["sha"]

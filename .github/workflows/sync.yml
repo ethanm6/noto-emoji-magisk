@@ -12,6 +12,12 @@ on:
 permissions:
   contents: write  # needed to commit the updated font back and create releases
 
+concurrency:
+  # Never let a manual run overlap the daily cron; queue instead of racing to
+  # commit/tag the same release.
+  group: noto-emoji-sync
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest

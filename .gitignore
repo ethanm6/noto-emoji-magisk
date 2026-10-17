@@ -1,2 +1,9 @@
 # Local-only agent instructions; never publish
 CLAUDE.md
+
+# Transient font download from sync.py (removed on exit, but guard against
+# it being left behind if a run is killed mid-download)
+_upstream_fetch.ttf
+
+# Python bytecode
+__pycache__/
